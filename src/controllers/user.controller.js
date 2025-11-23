@@ -37,7 +37,7 @@ export const registerUser = asyncHandler(async (req,res)=>{
     
     /// checking if the User already exists username,email
 
-    const exitedUser = User.findOne({
+    const exitedUser = await User.findOne({
         $or: [{username}, {email}]
     })
     
@@ -47,8 +47,8 @@ export const registerUser = asyncHandler(async (req,res)=>{
     
     //// storing images to local path
 
-    const avatarLocalPath = req.files?.avatar[0]?.path
-    const coverimageLocalPath = req.files?.coverimage[0]?.path
+    const avatarLocalPath = req.files?.avatar[0]?.path;
+    const coverimageLocalPath = req.files?.coverimage[0]?.path;
 
     if(!avatarLocalPath){
         throw new apiError(410,"Please upload your image")
@@ -73,7 +73,9 @@ export const registerUser = asyncHandler(async (req,res)=>{
         fullName,
         avatar: avatar.url,
         coverimage: coverimage?.url || "",
-        username: username.toLowerCase()
+        username: username.toLowerCase(),
+        email,
+        password
     })
 
     // checking if the user is created in DB
