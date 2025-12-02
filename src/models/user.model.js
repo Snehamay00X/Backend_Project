@@ -49,13 +49,13 @@ userSchema.pre("save",async function(next){
     this.password = await bcrypt.hash(this.password,10)
     next()
 })
-
+/// checking if the normal password and the encrypted password is the same  
 userSchema.methods.isPasswordCorrect = async function (password) {
      return await bcrypt.compare(password,this.password)
 }
 
 userSchema.methods.generateAccessToken = function(){
-   return jwt.sign({
+   return jwt.sign({ //// jwt.sign returns a string
         _id: this._id,
         email: this.email,
         username: this.username,
