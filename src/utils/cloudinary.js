@@ -1,5 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
+import { extractPublicId } from 'cloudinary-build-url';
 import fs from "fs"
+
     
     // Configuration
     cloudinary.config({ 
@@ -21,6 +23,17 @@ import fs from "fs"
         } catch (error) {
             fs.unlinkSync(localFilePath)// remove the locally saved file to free up space
             return null
+        }
+    }
+
+    export const deleteFromCloudinary = async(publicURL)=>{
+        try {
+            const publicID = extractPublicId(publicURL)
+            const result = await cloudinary.uploader.destroy(publicID)
+            console.log("Old images has been deleted",result)
+            return result
+        } catch (error) {
+            return console.log(error.message || "Something went wrong")
         }
     }
     

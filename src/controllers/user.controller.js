@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {apiError} from "../utils/api-error.js"
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/api-response.js";
 import jwt from "jsonwebtoken"
 
@@ -292,7 +292,7 @@ export const getCurrentUser = asyncHandler(async(req,res)=>{
 export const updateAccountDeatils = asyncHandler(async(req,res)=>{
     const{username,email} = req.body
 
-    const user = User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set:{
@@ -325,6 +325,17 @@ export const updateAvatar = asyncHandler(async(req,res)=>{
     if (!avatar.url) {
         throw new apiError(400,"Couldn't upload avatar to cloudinary")
     }
+
+    ///// deleting old avatar
+    const oldUser = await User.findById(req.user?._id)
+    
+    const oldAvatarURL = oldUser?.avatar
+    
+    if (!oldAvatarURL) {
+        throw new apiError(400,"No Avatar Found to delete")
+    }
+    await deleteFromCloudinary(oldAvatarURL)
+
     
     const user = await User.findByIdAndUpdate(req.user?._id,
         {
@@ -358,6 +369,17 @@ export const updateCoverImage = asyncHandler(async(req,res)=>{
     if (!coverimage.url) {
         throw new apiError(400,"Couldn't upload cover image to cloudinary")
     }
+
+    ///// deleting old CoverImage
+    const oldUser = await User.findById(req.user?._id)
+    
+    const oldCoverURL = oldUser?.avatar
+    
+    if (!oldCoverURL) {
+        throw new apiError(400,"No Cover Image Found to delete")
+    }
+    await deleteFromCloudinary(oldCoverURL)
+
     
     const user = await User.findByIdAndUpdate(req.user?._id,
         {
@@ -374,4 +396,75 @@ export const updateCoverImage = asyncHandler(async(req,res)=>{
     .json(
         new apiResponse(200,user,"Cover image uploaded successfully")
     )
+})
+
+
+export const getUserChannelProfile = asyncHandler(async(req,res)=>{
+    const {username} = req.params
+
+    if (!username?.trim()) {
+        throw new apiError(400,"Username is missing")
+    }
+
+    const channel = await User.aggregate([
+        {
+            $match:{
+                username: username?.toLowerCase()///// finding the user got from params
+            }
+        },
+        {
+            $lookup:{
+                from: "subscriptions",
+                localField:"_id",
+                foreignField:"channel",
+                as:"subscribers"
+            }
+        },
+        {
+            $lookup:{
+                 from: "subscriptions",
+                localField:"_id",
+                foreignField:"subscriber",
+                as:"subscribedTo"
+            }
+        },{
+            $addFields:{
+                subsscriberCount:{
+                    $size:"$subscribers"
+                },
+                channelsSubscribedToCount:{
+                    $size:"$subscribedTo"
+                },
+                isSubscribed:{
+                    $cond:{
+                        if:{$in:[req.user?._id,"$subscribers.subscriber"]},
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $project:{
+                fullName: 1,
+                username: 1,
+                email: 1,
+                subsscriberCount: 1,
+                channelsSubscribedToCount: 1,
+                isSubscribed: 1,
+                avatar: 1,
+                coverimage: 1
+            }
+        }
+    ])
+
+    if (!channel?.length) {
+        throw new apiError(404,"Channel doesn't exists")
+    }
+
+    return res.status(200)
+    .json(
+        new apiResponse(200,channel[0],"User channel fetched succesfully")
+    )
+
 })

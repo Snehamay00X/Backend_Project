@@ -3,7 +3,7 @@ import {apiError} from "../utils/api-error.js"
 import jwt from "jsonwebtoken"
 import { User } from "../models/user.model.js";
 
-export const virifyJWT = asyncHandler(async(req,_,next)=>{///// if a param not being used replace it with _ here it was res
+export const verifyJWT = asyncHandler(async(req,_,next)=>{///// if a param not being used replace it with _ here it was res
     try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","")
         if (!token) {
@@ -12,7 +12,7 @@ export const virifyJWT = asyncHandler(async(req,_,next)=>{///// if a param not b
         const decodedToken = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
         /// decodedToken returns the object I used to create the JWT token using jwt.sign
 
-        const user = User.findById(decodedToken?._id).select("-password -refreshToken")
+        const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
     
         if (!user) {
             throw new apiError(401, "Invalid AccessToken")
