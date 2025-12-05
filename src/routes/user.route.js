@@ -20,12 +20,12 @@ router.route("/register").post(
 
     router.route("/login").post(loginUser)
 
-    router.route("/update-avatar").post(verifyJWT,upload.single("avatar"),updateAvatar)
-
+    
     /// secured routes
-
+    
     router.route("/logout").post(verifyJWT,logoutUser)
     router.route("/refresh-token").post(refreshAccessToken)
+    router.route("/update-avatar").post(verifyJWT,upload.single("avatar"),updateAvatar)
 
 
 export default router
