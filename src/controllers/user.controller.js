@@ -71,6 +71,8 @@ export const registerUser = asyncHandler(async (req,res)=>{
     //// storing images to local path
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
+    console.log(avatarLocalPath);
+    
     const coverimageLocalPath = req.files?.coverimage[0]?.path;
 
     if(!avatarLocalPath){
