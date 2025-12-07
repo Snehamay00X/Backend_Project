@@ -29,11 +29,15 @@ const videoSchema = new mongoose.Schema({
     },
     views:{
         type: Number,
-        required: true
+        default:0
     },
     isPublished:{
         type: Boolean,
+        default: false,
         required: true
+    },
+    publishedAt:{
+        type: Date
     }
 },{})
 

@@ -26,7 +26,7 @@ const storageVideo = multer.diskStorage({
 
 
 
-export const uploadVideo = multer({storageVideo})
+export const uploadVideo = multer({storage:storageVideo})
 export const upload = multer({storage})
 
 

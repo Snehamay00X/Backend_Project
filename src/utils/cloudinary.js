@@ -30,10 +30,22 @@ import fs from "fs"
         try {
             const publicID = extractPublicId(publicURL)
             const result = await cloudinary.uploader.destroy(publicID)
-            console.log("Old images has been deleted",result)
+            console.log("Old images/Videos has been deleted",result)
             return result
         } catch (error) {
             return console.log(error.message || "Something went wrong")
         }
     }
     
+    export const getVideoDuration = async(publicURL)=>{
+        try {
+            const publicID = extractPublicId(publicURL)
+            const result = await cloudinary.api.resource(publicID,{
+                resource_type: 'video',
+                media_metadata: true
+            })
+            return result.duration
+        } catch (error) {
+            return console.log(error.message || "Something went wrong")
+        }
+    }

@@ -46,7 +46,6 @@ export const registerUser = asyncHandler(async (req,res)=>{
     /// getting user data
 
     const {username,email,fullName,password} = req.body
-    console.log(username,email,password)
 
     /// checking if the field is empty// you can check all the conditions individually
 
@@ -71,8 +70,6 @@ export const registerUser = asyncHandler(async (req,res)=>{
     //// storing images to local path
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    console.log(avatarLocalPath);
-    
     const coverimageLocalPath = req.files?.coverimage[0]?.path;
 
     if(!avatarLocalPath){
@@ -401,7 +398,7 @@ export const updateCoverImage = asyncHandler(async(req,res)=>{
     )
 })
 
-
+// need to add videos so that videos too gets returned. Done
 export const getUserChannelProfile = asyncHandler(async(req,res)=>{
     const {username} = req.params
 
@@ -430,8 +427,18 @@ export const getUserChannelProfile = asyncHandler(async(req,res)=>{
                 foreignField:"subscriber",
                 as:"subscribedTo"
             }
-        },{
+        },
+        {
+            $lookup:{
+                from:"videos",
+                localField:"_id",
+                foreignField:"owner",
+                as:"videosPost"
+            }
+        },
+        {
             $addFields:{
+                videos:"$videosPost",
                 subsscriberCount:{
                     $size:"$subscribers"
                 },
@@ -456,7 +463,8 @@ export const getUserChannelProfile = asyncHandler(async(req,res)=>{
                 channelsSubscribedToCount: 1,
                 isSubscribed: 1,
                 avatar: 1,
-                coverimage: 1
+                coverimage: 1,
+                videos: 1
             }
         }
     ])
@@ -522,6 +530,8 @@ export const getWatchHistory = asyncHandler(async(req,res)=>{
     )
 
 })
+
+
 
 
 
