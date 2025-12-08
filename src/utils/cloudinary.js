@@ -29,7 +29,7 @@ import fs from "fs"
     export const deleteFromCloudinary = async(publicURL)=>{
         try {
             const publicID = extractPublicId(publicURL)
-            const result = await cloudinary.uploader.destroy(publicID)
+            const result = await cloudinary.uploader.destroy(publicID,{resource_type: "video"})
             console.log("Old images/Videos has been deleted",result)
             return result
         } catch (error) {

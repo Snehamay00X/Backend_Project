@@ -142,17 +142,18 @@ export const replaceVideo = asyncHandler(async(req,res)=>{
     if (!(oldVideo.owner.toString() === req.user._id.toString())) {
         throw new apiError(403,"You're not authorized")
     }
-
+    
     const uploadedVideo = await uploadOnCloudinary(videoFileLocalPath)
-
+    
     if (!uploadedVideo) {
         throw new apiError(400,"Couldn't upload file to cloudinary")
     }
-
+    
     const deletedVideo = await deleteFromCloudinary(oldVideo.videoFile)
 
     if (!deletedVideo) {
-        console.log("Couldn't delete the Video")
+        throw new apiError(500,"Couldn't delete the video")
+        //console.log("Couldn't delete the Video")
     }
     
     await Video.findByIdAndUpdate(videoID,{
