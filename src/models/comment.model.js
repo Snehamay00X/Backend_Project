@@ -6,15 +6,15 @@ const commentSchema = new Schema({
         required: true
     },
     video:{
-        type: Schema.Types.ObjectId(),
+        type: Schema.Types.ObjectId,
         ref: "Video",
         required: true
     },
     owner:{
-        type: Schema.Types.ObjectId(),
+        type: Schema.Types.ObjectId,
         ref: "User",
         required: true
     }
 },{timestamps: true})
 
-export const Comment = model("Comment",commentSchema)
+export const Usercomment = model("Usercomment",commentSchema)

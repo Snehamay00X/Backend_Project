@@ -3,7 +3,8 @@ import { apiError } from "../utils/api-error.js";
 import { apiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Video } from "../models/video.model.js";
-import {Comment} from "../models/comment.model.js"
+import {Usercomment} from "../models/comment.model.js"
+import mongoose from "mongoose";
 
 
 
@@ -51,7 +52,7 @@ export const likeComment = asyncHandler(async (req, res) => {
     const { commentID } = req.params;
     const userID = req.user._id;
 
-    const commentExists = await Comment.findById(commentID);
+    const commentExists = await Usercomment.findById(commentID);
 
     if (!commentExists) {
         throw new apiError(404, "No comment exists with this ID");
@@ -81,4 +82,46 @@ export const likeComment = asyncHandler(async (req, res) => {
         new apiResponse(201, like, "Comment liked successfully")
     );
 });
+
+export const getVideoLikes = asyncHandler(async(req,res)=>{
+    const {videoID} = req.params
+
+    const likeCount = await Like.aggregate(
+        [
+            {
+                $match:{
+                    video: new mongoose.Types.ObjectId(videoID)
+                }
+            },
+            {
+               $count: "totalLikes"
+            }
+        ]
+    )
+    res.status(200)
+    .json(
+        new apiResponse(200,likeCount[0]?.totalLikes || 0,"Like count fetched")
+    )
+})
+
+export const getCommentLikes = asyncHandler(async(req,res)=>{
+    const {commentID} = req.params
+
+    const likeCount = await Like.aggregate(
+        [
+            {
+                $match:{
+                    comment: new mongoose.Types.ObjectId(commentID)
+                }
+            },
+            {
+               $count: "totalLikes"
+            }
+        ]
+    )
+    res.status(200)
+    .json(
+        new apiResponse(200,likeCount[0]?.totalLikes || 0,"Like count fetched")
+    )
+})
 
