@@ -6,6 +6,24 @@ import {verifyJWT} from "../middlewares/auth.middleware.js"
 
 const router = Router()
 
+// router.use(verifyJWT)
+
+// router
+//     .route("/")
+//     .get(getVideoInfo)
+//     .post(uploadVideo.fields(
+//         [
+//             {
+//             name: "videoFile",
+//             maxCount:1
+//         },
+//         {
+//             name:"thumbnail",
+//             maxCount:1
+//         }
+//         ]
+//     ))
+
 
 router.route("/video-upload").post(verifyJWT,uploadVideo.fields(
     [
